@@ -1,8 +1,9 @@
 {
   "version": 2,
-  "savedAt": 1780419268350,
+  "savedAt": 1780420228699,
   "lockedThreads": [
-    "1633883731150651"
+    "1633883731150651",
+    "2428737944204552"
   ],
   "mutedThreads": [],
   "groupsCache": [
@@ -10,8 +11,8 @@
       "1633883731150651",
       {
         "name": "➺ 〖 ＣＲＯＷＳ 〗⚚ 〔 𝐍𝐎 𝐌𝐄𝐑𝐂𝐘 〕► 𓅂",
-        "memberCount": 30,
-        "lastSeen": 1780346835606
+        "memberCount": 32,
+        "lastSeen": 1780420181608
       }
     ],
     [
@@ -27,7 +28,15 @@
       {
         "name": null,
         "memberCount": 244,
-        "lastSeen": 1780419260441
+        "lastSeen": 1780420223270
+      }
+    ],
+    [
+      "2428737944204552",
+      {
+        "name": "اشهب قطوس",
+        "memberCount": 4,
+        "lastSeen": 1780419816262
       }
     ]
   ],
@@ -35,9 +44,9 @@
     [
       "1633883731150651",
       {
-        "messageCount": 7,
-        "commandCount": 4,
-        "lastMessageAt": 1780346835606
+        "messageCount": 9,
+        "commandCount": 6,
+        "lastMessageAt": 1780420181608
       }
     ],
     [
@@ -51,9 +60,17 @@
     [
       "4430559890509815",
       {
-        "messageCount": 261,
+        "messageCount": 422,
         "commandCount": 0,
-        "lastMessageAt": 1780419260441
+        "lastMessageAt": 1780420223270
+      }
+    ],
+    [
+      "2428737944204552",
+      {
+        "messageCount": 2,
+        "commandCount": 1,
+        "lastMessageAt": 1780419816262
       }
     ]
   ],
