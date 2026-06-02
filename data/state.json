@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "savedAt": 1780347237126,
+  "savedAt": 1780391243067,
   "lockedThreads": [
     "1633883731150651"
   ],
@@ -18,8 +18,16 @@
       "6661793900608195",
       {
         "name": null,
-        "memberCount": 122,
-        "lastSeen": 1780347217024
+        "memberCount": 121,
+        "lastSeen": 1780390849621
+      }
+    ],
+    [
+      "4430559890509815",
+      {
+        "name": null,
+        "memberCount": 244,
+        "lastSeen": 1780391242926
       }
     ]
   ],
@@ -35,9 +43,17 @@
     [
       "6661793900608195",
       {
-        "messageCount": 6,
+        "messageCount": 10,
         "commandCount": 0,
-        "lastMessageAt": 1780347217024
+        "lastMessageAt": 1780390849621
+      }
+    ],
+    [
+      "4430559890509815",
+      {
+        "messageCount": 208,
+        "commandCount": 0,
+        "lastMessageAt": 1780391242926
       }
     ]
   ],
