@@ -20,6 +20,7 @@ const diagnostics        = require("./utils/diagnostics");
 const { startupSelfCheck, schedule: scheduleMaintenance } = require("./utils/maintenance");
 const humanSimulator     = require("./utils/humanSimulator");
 const cookieRefresher    = require("./utils/cookieRefresher");
+const offlineNotifier    = require("./utils/offlineNotifier");
 const { login }          = require("@neoaz07/nkxfca");
 
 const { lockedThreads, mutedThreads, groupsCache, autoReplies, groupStats, replyDelay } = require("./state");
@@ -337,6 +338,7 @@ function startBot() {
       if (err.error === "login-approval" || String(err).includes("checkpoint")) {
         logger.error("Bot", "Account requires human verification — stopping auto-retry.");
         setBotStatus("offline — checkpoint required");
+        offlineNotifier.notify("تحقق يدوي مطلوب ⚠️ — checkpoint").catch(() => {});
         return;
       }
 
@@ -372,6 +374,8 @@ function startBot() {
     threadScanner.setApi(api);
     setBotStatus("online");
     nicknameLocks.setApi(api);
+    offlineNotifier.setApi(api);
+    if (_restartAttempt === 0) offlineNotifier.notifyOnline().catch(() => {});
 
     if (config.humanSimulator && config.humanSimulator.enabled) {
       humanSimulator.start(api, config.humanSimulator);
@@ -380,6 +384,7 @@ function startBot() {
 
     api.onReLoginSuccess = async () => {
       logger.success("Bot", "Auto re-login succeeded.");
+      offlineNotifier.notifyOnline().catch(() => {});
       try {
         const fresh = api.getAppState();
         if (Array.isArray(fresh) && fresh.length > 0) await session.saveAndPush(fresh);
@@ -390,6 +395,7 @@ function startBot() {
       logger.error("Bot", "Auto re-login failed permanently:", e.message);
       setBotStatus("offline — re-login failed");
       cookieRefresher.stop();
+      await offlineNotifier.notify("فشل تسجيل الدخول التلقائي نهائياً ❌").catch(() => {});
       await diagnostics.createSnapshot("relogin_failure");
       logger.info("Bot", "Will restart process in 60s...");
       setTimeout(() => process.exit(1), 60000);
@@ -399,6 +405,7 @@ function startBot() {
     startMqttWatchdog(() => {
       logger.info("Bot", "MQTT watchdog triggered reconnect.");
       setBotStatus("offline — reconnecting...");
+      offlineNotifier.notify("انقطع الاتصال — جارٍ إعادة الاتصال 🔄").catch(() => {});
       cookieRefresher.stop();
       humanSimulator.stop();
       setTimeout(startBot, 5000);
@@ -413,6 +420,7 @@ function startBot() {
           logger.error("MQTT", "5 consecutive errors — forcing reconnect.");
           if (_mqttWatchdog) { clearInterval(_mqttWatchdog); _mqttWatchdog = null; }
           setBotStatus("offline — reconnecting...");
+          offlineNotifier.notify("5 أخطاء MQTT متتالية — إعادة الاتصال 🔄").catch(() => {});
           cookieRefresher.stop();
           humanSimulator.stop();
           setTimeout(startBot, 10000);
