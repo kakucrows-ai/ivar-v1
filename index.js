@@ -274,16 +274,47 @@ async function handleEvent(api, event) {
     }
   }
 
-  if (logMessageType === "log:subscribe" && config.features.greetNewMembers) {
+  if (logMessageType === "log:subscribe") {
     const added = logMessageData?.addedParticipants?.map(p => p.userFbId || p.id) || [];
     const botID = api.getCurrentUserID();
-    for (const uid of added) {
-      if (uid === botID) continue;
-      try {
-        const info = await api.getUserInfo([uid]);
-        const name = info[uid]?.name || uid;
-        api.sendMessage(fmt(config.messages.greet, { name }), threadID).catch(() => {});
-      } catch {}
+
+    // ── البوت أُضيف للمجموعة: يضع كنية فخمة لنفسه ────────────────────────
+    if (added.includes(botID)) {
+      const ravenNicks = [
+        "🐦‍⬛ إيفار الغراب",
+        "◈ إيفار ◈ كورف",
+        "𝕴𝖛𝖆𝖗 🐦‍⬛ الغراب",
+        "⚔️ إيفار | الغراب",
+        "🖤 إيفار — كورف 🖤",
+        "◈ إيڤار الغراب ◈",
+        "𝕴𝖛𝖆𝖗 ✦ كورف",
+        "🐦‍⬛ ايفار ✦ الأسود",
+      ];
+      const nick = ravenNicks[Math.floor(Math.random() * ravenNicks.length)];
+      setTimeout(async () => {
+        try {
+          if (typeof api.changeNickname === "function") {
+            await api.changeNickname(nick, threadID, botID);
+          } else {
+            await api.nickname(nick, threadID, botID);
+          }
+          logger.info("JoinNick", "Set join nickname: " + nick + " in " + threadID);
+        } catch (e) {
+          logger.warn("JoinNick", "Failed to set join nickname: " + e.message);
+        }
+      }, 3000);
+    }
+
+    // ── ترحيب بالأعضاء الجدد ─────────────────────────────────────────────
+    if (config.features.greetNewMembers) {
+      for (const uid of added) {
+        if (uid === botID) continue;
+        try {
+          const info = await api.getUserInfo([uid]);
+          const name = info[uid]?.name || uid;
+          api.sendMessage(fmt(config.messages.greet, { name }), threadID).catch(() => {});
+        } catch {}
+      }
     }
   }
 
