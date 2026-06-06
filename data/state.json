@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "savedAt": 1780580541264,
+  "savedAt": 1780733784709,
   "lockedThreads": [
     "2428737944204552",
     "1633883731150651"
@@ -27,8 +27,8 @@
       "4430559890509815",
       {
         "name": "ايفار 🤖الغراب🦾ينيج🤣ام🥵ياسينة🙉",
-        "memberCount": 248,
-        "lastSeen": 1780579202783
+        "memberCount": 247,
+        "lastSeen": 1780733770579
       }
     ],
     [
@@ -37,6 +37,14 @@
         "name": "اشهب قطوس",
         "memberCount": 4,
         "lastSeen": 1780419816262
+      }
+    ],
+    [
+      "2132362274273337",
+      {
+        "name": null,
+        "memberCount": 119,
+        "lastSeen": 1780733775210
       }
     ]
   ],
@@ -60,9 +68,9 @@
     [
       "4430559890509815",
       {
-        "messageCount": 515,
+        "messageCount": 523,
         "commandCount": 4,
-        "lastMessageAt": 1780579202783
+        "lastMessageAt": 1780733770579
       }
     ],
     [
@@ -71,6 +79,14 @@
         "messageCount": 2,
         "commandCount": 1,
         "lastMessageAt": 1780419816262
+      }
+    ],
+    [
+      "2132362274273337",
+      {
+        "messageCount": 83,
+        "commandCount": 0,
+        "lastMessageAt": 1780733775210
       }
     ]
   ],

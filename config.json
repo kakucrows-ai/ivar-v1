@@ -51,7 +51,7 @@
     "selfListen": false,
     "listenEvents": true,
     "listenTyping": false,
-    "autoMarkRead": true,
+    "autoMarkRead": false,
     "autoMarkDelivery": false,
     "autoReconnect": true,
     "simulateTyping": true,

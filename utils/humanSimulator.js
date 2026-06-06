@@ -27,10 +27,11 @@ const DEFAULT_CONFIG = {
   browseBatchSize:     6,             // threads per browse session
 };
 
-let _api     = null;
-let _cfg     = { ...DEFAULT_CONFIG };
-let _timers  = [];
-let _running = false;
+let _api        = null;
+let _cfg        = { ...DEFAULT_CONFIG };
+let _timers     = [];
+let _running    = false;
+let _readLocked = false; // true when account returns LOCKED on markAsRead
 let _stats   = {
   startedAt:       null,
   presenceSent:    0,
@@ -107,20 +108,37 @@ function _doTyping() {
   }, _jitter(_cfg.typingIntervalMs));
 }
 
+// ── helper: safe markAsRead — disables itself on LOCKED ───────────────────────
+async function _safeMarkAsRead(threadID) {
+  if (_readLocked) return false;
+  try {
+    await _api.markAsRead(threadID, true);
+    return true;
+  } catch (e) {
+    if (e.errorType === "LOCKED" || e.errorCode === 1357031 || (e.message || "").includes("LOCKED")) {
+      if (!_readLocked) {
+        _readLocked = true;
+        logger.warn("HumanSim", "markAsRead LOCKED — disabling read simulation for this session.");
+      }
+    } else {
+      logger.debug("HumanSim", `markAsRead error ${threadID}: ${e.message}`);
+    }
+    return false;
+  }
+}
+
 // ── 3. Mark threads as read ───────────────────────────────────────────────────
 function _doRead() {
   _schedule(async () => {
-    if (!_running || !_api) return;
+    if (!_running || !_api || _readLocked) return;
     for (const threadID of _randomGroupIDs(_cfg.maxGroupsPerCycle)) {
-      try {
-        await _api.markAsRead(threadID, true);
-        _stats.threadsRead++;
-        _record("markRead");
-        logger.debug("HumanSim", `Marked ${threadID} as read`);
-        await _sleep(700, 2_500);
-      } catch (e) { logger.debug("HumanSim", `markAsRead error ${threadID}: ${e.message}`); }
+      if (!await _safeMarkAsRead(threadID)) break;
+      _stats.threadsRead++;
+      _record("markRead");
+      logger.debug("HumanSim", `Marked ${threadID} as read`);
+      await _sleep(700, 2_500);
     }
-    _doRead();
+    if (!_readLocked) _doRead();
   }, _jitter(_cfg.readIntervalMs));
 }
 
@@ -130,7 +148,7 @@ function _doRead() {
 // The burst-then-idle pattern mimics real human Messenger usage.
 function _doBrowse() {
   _schedule(async () => {
-    if (!_running || !_api) return;
+    if (!_running || !_api || _readLocked) return;
 
     const batch = _randomGroupIDs(_cfg.browseBatchSize || 6);
     if (batch.length === 0) { _doBrowse(); return; }
@@ -138,10 +156,11 @@ function _doBrowse() {
     logger.debug("HumanSim", `Browse session — ${batch.length} threads`);
 
     for (const threadID of batch) {
-      if (!_running) break;
+      if (!_running || _readLocked) break;
       try {
         // "Open" the thread — mark as read (simulates tapping the conversation)
-        await _api.markAsRead(threadID, true);
+        const ok = await _safeMarkAsRead(threadID);
+        if (!ok) break;
         _stats.threadsRead++;
         _record("browse");
 
@@ -164,17 +183,18 @@ function _doBrowse() {
 
     _stats.browseSessions++;
     logger.debug("HumanSim", `Browse session #${_stats.browseSessions} complete`);
-    _doBrowse();
+    if (!_readLocked) _doBrowse();
   }, _jitter(_cfg.browseIntervalMs));
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
 function start(api, userConfig = {}) {
   if (_running) stop();
-  _api     = api;
-  _cfg     = { ...DEFAULT_CONFIG, ...userConfig };
-  _running = true;
-  _timers  = [];
+  _api        = api;
+  _cfg        = { ...DEFAULT_CONFIG, ...userConfig };
+  _running    = true;
+  _readLocked = false;
+  _timers     = [];
   _stats   = {
     startedAt:       Date.now(),
     presenceSent:    0,
